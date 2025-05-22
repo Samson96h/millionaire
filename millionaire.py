@@ -23,6 +23,7 @@ def questions_craft(list):
     return random.sample(md_quest, 10)
 
 def run_quiz():
+    player_name = input("Please enter your name : ")
     quests = questions_craft(get_quest("questions.txt"))
     score = 0
     for q in quests:
@@ -40,5 +41,8 @@ def run_quiz():
             print(f"NOOO ! {q['correct']}")
 
     print(f"Your score : {score} / 10")
+
+    with open("top.txt", "a") as f:
+        f.write(player_name + ' : ' + str(score) + "\n")
 
 run_quiz()
