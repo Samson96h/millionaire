@@ -45,4 +45,30 @@ def run_quiz():
     with open("top.txt", "a") as f:
         f.write(player_name + ' : ' + str(score) + "\n")
 
+    with open("top.txt", "r") as f:
+        results = f.readlines()
+    scores = []
+    for line in results:
+        line = line.strip()
+        if " : " in line:
+            info = line.split(" : ")
+            if len(info) == 2 and info[1].isdigit():
+                name = info[0]
+                score = int(info[1])
+                scores.append((name, score))
+
+    scores.sort(key=lambda x: x[1], reverse=True)
+    with open("top.txt", "w") as f:
+        for name, score in scores:
+            f.write(f"{name} : {score}\n")
+
+    def top_players():
+        print("\n TOP PLAYERS ")
+        for i, (name, score) in enumerate(scores[:10], 1):
+            print(f"{i}. {name} - {score}")
+
+    answer = input("Do you want to see the best players? y / n: ")
+    if answer.lower() == "y":
+        top_players()
+
 run_quiz()
