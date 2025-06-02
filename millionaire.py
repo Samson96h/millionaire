@@ -1,11 +1,11 @@
 from random import randint, shuffle
 
-QUESTIONS_COUNT = 10
+QUESTIONS_COUNT = 5
 
 def player_or_admin ():
     answ = input("Want to start a game or add new questions? play or edit : ")
     if answ == "play":
-        main()
+        game()
     if answ == "edit":
         login = input("Enter password : ")
         if login == "admin":
@@ -26,7 +26,7 @@ def edit():
         print("You must enter exactly 4 answers (1 correct + 3 incorrect).")
         return
     
-    question_line = new_quest + "," + ",".join(answers)
+    question_line = new_quest + ",".join(answers)
 
     f = open("questions.txt", "a")
     f.write(question_line + "\n")
@@ -119,7 +119,7 @@ def show_top(scores, top_n=10):
     for i, (name, score) in enumerate(scores[:top_n], 1):
         print(f"{i}. {name} - {score}")
 
-def main():
+def game():
     username = input("Enter your username: ")
     all_questions = get_questions("questions.txt")
     indexes = get_random_indexes(len(all_questions), QUESTIONS_COUNT)
