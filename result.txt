@@ -1,5 +1,0 @@
-game1 : X
-game2 : D
-game3 : O
-game4 : O
-game5 : X
