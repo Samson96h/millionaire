@@ -2,20 +2,18 @@ import argparse
 from random import randint, shuffle
 
 QUESTIONS_COUNT = 5
+def arguments():
+    parser = argparse.ArgumentParser(description="MILLIONAIRE")
+    parser.add_argument("-f", "--file", default="questions.txt", help="Question file")
+    parser.add_argument("-n", "--name", help="User name")
+    parser.add_argument("-t", "--top", default="top.txt", help="Top players")
+    parser.add_argument("-y", "--yes", type=str, help="See top players - y or n")
+    args = parser.parse_args()
 
-parser = argparse.ArgumentParser(description="MILLIONAIRE")
-parser.add_argument("-f", "--file", default="questions.txt", help="Question file")
-parser.add_argument("-n", "--name", help="User name")
-parser.add_argument("-t", "--top", default="top.txt", help="Top players")
-parser.add_argument("-y", "--yes", type=str, help="See top players - y or n")
-args = parser.parse_args()
-
-yes = args.yes
-QUESTIONS_FILE = args.file
-USERNAME = args.name
-TOP = args.top
+    return args.file, args.name, args.top, args.yes
 
 def main():
+
     answer = input("Do you want to play or add questions? (play / edit): ").strip().lower()
     if answer == "play":
         game()
@@ -63,6 +61,40 @@ def get_random_indexes(qcount, count):
         indexes.add(randint(0, qcount - 1))
     return list(indexes)
 
+class Question:
+    def __init__(self,question, variants, correct):
+        self.question = question
+        self.variants = variants
+        self.correct = correct
+
+    def __str__(self):
+        return f"{self.question} {self.variants} {self.correct}"
+
+class Player:
+    def __init__(self, name, score):
+        self.__name = name
+        self.__score = score
+
+    @property
+    def name(self):
+        return self.__name
+    @name.setter
+    def name(self, value):
+        if value == "":
+            self.__name = "Player"
+        else:
+            self.__name = value
+    @property
+    def score(self):
+        return self.__score
+    @score.setter
+    def score(self, value):
+        self.__score = max(0, value)
+
+    def __str__(self):
+        return f"{self.name} {self.score}"
+
+
 def prepare_questions(questions):
     final = []
     for q in questions:
@@ -74,18 +106,14 @@ def prepare_questions(questions):
                 continue
             correct = answers[0]
             shuffle(answers)
-            final.append({
-                "question": q_text,
-                "variants": answers,
-                "correct": correct
-            })
+            final.append(Question(q_text, answers, correct))
     return final
 
 def play_quiz(questions):
     score = 0
     for q in questions:
-        print("\n" + q["question"])
-        for i, a in enumerate(q["variants"], 1):
+        print("\n" + q.question)
+        for i, a in enumerate(q.variants, 1):
             print(f"{i}. {a}")
 
         try:
@@ -93,7 +121,7 @@ def play_quiz(questions):
             if choice.isdigit():
                 num = int(choice)
                 if 1 <= num <= 4:
-                    answer = q["variants"][num - 1]
+                    answer = q.variants[num - 1]
                 else:
                     print("Number must be from 1 to 4.")
                     answer = ""
@@ -104,12 +132,12 @@ def play_quiz(questions):
             print("Input error:", e)
             answer = ""
 
-        if answer == q["correct"]:
+        if answer == q.correct:
             print("Correct!")
             score += 1
         else:
             if answer != "":
-                print(f"Incorrect! Correct answer: {q['correct']}")
+                print(f"Incorrect! Correct answer: {q.correct}")
     return score
 
 def save_score(fname, username, score):
@@ -129,7 +157,7 @@ def load_scores(fname):
                 if " : " in line:
                     name, scr = line.strip().split(" : ")
                     if scr.isdigit():
-                        scores.append((name, int(scr)))
+                        scores.append(Player(name, int(scr)))
     except FileNotFoundError:
         print(f"File {fname} not found. No results yet.")
     except Exception as e:
@@ -138,17 +166,19 @@ def load_scores(fname):
 
 def save_sorted_scores(fname, scores):
     try:
-        scores.sort(key=lambda x: x[1], reverse=True)
+        scores.sort(key=lambda x: x.score, reverse=True)
         with open(fname, "w", encoding="utf-8") as f:
-            for name, score in scores:
-                f.write(f"{name} : {score}\n")
+            for player in scores:
+                f.write(f"{player.name} : {player.score}\n")
     except Exception as e:
         print("Error saving leaderboard:", e)
 
+
 def show_top(scores, top_n=10):
     print("\nTOP PLAYERS:")
-    for i, (name, score) in enumerate(scores[:top_n], 1):
-        print(f"{i}. {name} - {score}")
+    for i, player in enumerate(scores[:top_n], 1):
+        print(f"{i}. {player.name} - {player.score}")
+
 
 def game():
     username = USERNAME or input("Enter your name: ").strip()
@@ -175,4 +205,5 @@ def game():
             show_top(scores)
 
 if __name__ == "__main__":
+    QUESTIONS_FILE, USERNAME, TOP, yes = arguments()
     main()
