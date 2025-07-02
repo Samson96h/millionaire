@@ -1,7 +1,7 @@
 import argparse
 from random import randint, shuffle
 
-QUESTIONS_COUNT = 5
+
 def arguments():
     parser = argparse.ArgumentParser(description="MILLIONAIRE")
     parser.add_argument("-f", "--file", default="questions.txt", help="Question file")
@@ -16,7 +16,7 @@ def main():
 
     answer = input("Do you want to play or add questions? (play / edit): ").strip().lower()
     if answer == "play":
-        game()
+        game(5)
     elif answer == "edit":
         password = input("Enter password: ").strip()
         if password == "admin":
@@ -180,16 +180,16 @@ def show_top(scores, top_n=10):
         print(f"{i}. {player.name} - {player.score}")
 
 
-def game():
+def game(questions_count):
     username = USERNAME or input("Enter your name: ").strip()
     all_questions = get_questions(QUESTIONS_FILE)
 
-    indexes = get_random_indexes(len(all_questions), QUESTIONS_COUNT)
+    indexes = get_random_indexes(len(all_questions), questions_count)
     selected = [all_questions[i] for i in indexes]
     prepared = prepare_questions(selected)
 
     score = play_quiz(prepared)
-    print(f"\nYour result: {score}/{QUESTIONS_COUNT}")
+    print(f"\nYour result: {score}/{questions_count}")
 
     save_score(TOP, username, score)
     scores = load_scores(TOP)
