@@ -1,6 +1,8 @@
 import argparse
-from random import randint, shuffle
 
+from random import randint, shuffle
+from question import Question
+from player import Player
 
 def arguments():
     parser = argparse.ArgumentParser(description="MILLIONAIRE")
@@ -61,39 +63,6 @@ def get_random_indexes(qcount, count):
         indexes.add(randint(0, qcount - 1))
     return list(indexes)
 
-class Question:
-    def __init__(self,question, variants, correct):
-        self.question = question
-        self.variants = variants
-        self.correct = correct
-
-    def __str__(self):
-        return f"{self.question} {self.variants} {self.correct}"
-
-class Player:
-    def __init__(self, name, score):
-        self.__name = name
-        self.__score = score
-
-    @property
-    def name(self):
-        return self.__name
-    @name.setter
-    def name(self, value):
-        if value == "":
-            self.__name = "Player"
-        else:
-            self.__name = value
-    @property
-    def score(self):
-        return self.__score
-    @score.setter
-    def score(self, value):
-        self.__score = max(0, value)
-
-    def __str__(self):
-        return f"{self.name} {self.score}"
-
 
 def prepare_questions(questions):
     final = []
@@ -112,10 +81,7 @@ def prepare_questions(questions):
 def play_quiz(questions):
     score = 0
     for q in questions:
-        print("\n" + q.question)
-        for i, a in enumerate(q.variants, 1):
-            print(f"{i}. {a}")
-
+        print(q)
         try:
             choice = input("Your answer (1-4): ").strip()
             if choice.isdigit():
